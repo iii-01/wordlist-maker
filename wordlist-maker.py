@@ -52,8 +52,16 @@ def simplepasswords(word_cases):
                     password_5 = i + j + i[::-1]
                     wordlist.append(password_4)
                     wordlist.append(password_5)
-    
 
+
+if first_name is not None and last_name is not None:
+    wordlist.append(first_name + last_name)
+    wordlist.append(last_name + first_name)
+    for i in combinations_list:
+        if any(j in special_characters for j in i):
+            wordlist.append(first_name + i + last_name)
+            wordlist.append(last_name + i + first_name)
+    
 if first_name is not None:
     fn_cases = casesen(first_name)
     wordlist.extend(fn_cases)
@@ -77,15 +85,8 @@ if extra is not None:
     for i in e_cases:
         if i.isdigit() is False:
             e_cases_c.append(i)
-    simple_passwords(e_cases_c)
+    simplepasswords(e_cases_c)
     
-if first_name is not None and last_name is not None:
-    wordlist.append(first_name + last_name)
-    wordlist.append(last_name + first_name)
-    for i in combinations_list:
-        if any(j in special_characters for j in i):
-            wordlist.append(first_name + i + last_name)
-            wordlist.append(last_name + i + first_name)
 
 if birthday is not None:
     date_list = birthday.split('-')
@@ -153,21 +154,24 @@ if birthday is not None:
 
         return(date_combinations)
 
-    
-    wordlist.append(datecombinations(day, mon, year))
+    for i in datecombinations(day, mon, year):
+        wordlist.append(i)
     
     
     if first_name is not None:
         for i in fn_cases:
-            wordlist.append(datecombinations(day, mon, year, word=(i,)))
+            for j in datecombinations(day, mon, year, word=(i,)):
+                wordlist.append(j)
     if last_name is not None:
         for i in ln_cases:
-            wordlist.append(datecombinations(day, mon, year, word=(i,)))
+            for j in datecombinations(day, mon, year, word=(i,)):
+                wordlist.append(j)
 
     if first_name is not None and last_name is not None:
         for i in fn_cases:
             for j in ln_cases:
-                wordlist.append(datecombinations(day, mon, year, word=(i+j,)))
+                for k in datecombinations(day, mon, year, word=(i+j,)):
+                    wordlist.append(k)
 
 
 
