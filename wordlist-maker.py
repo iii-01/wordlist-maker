@@ -177,5 +177,3 @@ if birthday is not None:
 
 for i in wordlist:
     print(i)
-print(len(wordlist))
-
