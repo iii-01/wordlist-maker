@@ -5,9 +5,11 @@ import re
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-fn", "--first-name", help="First name of the target")
+parser.add_argument("-mn", "--middle-name", help="Middle name of the target")
 parser.add_argument("-ln", "--last-name", help="Last name of the target")
 parser.add_argument("-b", "--birthday", help="Target's birthday (MM-DD-YYYY, with leading zeros)")
 parser.add_argument("-e", "--extra", help="Words that might be a potential target's password like their pet's name, city, favorite movie/song, etc")
+parser.add_argument("-o", "--output", help="Path to the output file")
 args = parser.parse_args()
 
 args_dict = vars(args)
@@ -15,9 +17,11 @@ val_list = list(args_dict.values())
 key_list = list(args_dict.keys())
 
 first_name = args.first_name
+middle_name = args.middle_name
 last_name = args.last_name
 birthday = args.birthday
 extra = args.extra
+output = args.output
 
 special_characters = "\!@#$%^&*-+?_=,./'~|:"
 
@@ -61,6 +65,27 @@ if first_name is not None and last_name is not None:
         if any(j in special_characters for j in i):
             wordlist.append(first_name + i + last_name)
             wordlist.append(last_name + i + first_name)
+            wordlist.append(last_name + first_name + i)
+            wordlist.append(last_name + first_name + i)
+            wordlist.append(i + last_name + first_name)
+            wordlist.append(i + first_name + last_name)
+    if middle_name is not None:
+        wordlist.append(first_name + middle_name + last_name)
+        wordlist.append(first_name + last_name + middle_name)
+        wordlist.append(last_name + middle_name + first_name)
+        wordlist.append(middle_name + last_name + first_name)
+        wordlist.append(middle_name + first_name + last_name)
+        wordlist.append(last_name + first_name + middle_name)
+        for i in combinations_list:
+            if any(j in special_characters for j in i):
+                wordlist.append(first_name + i + middle_name + i + last_name)
+if first_name is not None and middle_name is not None:
+    wordlist.append(first_name + middle_name)
+    wordlist.append(middle_name + first_name)
+    for i in combinations_list:
+        if any(j in special_characters for j in i):
+            wordlist.append(first_name + i + middle_name)
+            wordlist.append(middle_name + i + first_name)
     
 if first_name is not None:
     fn_cases = casesen(first_name)
@@ -68,12 +93,30 @@ if first_name is not None:
     simplepasswords(fn_cases)
     for i in fn_cases:
         wordlist.append(i[::-1])
+        for j in combinations_list:
+            if any(k in special_characters for k in j):
+                wordlist.append(i[::-1] + j)
+                wordlist.append(j + i[::-1])
+if middle_name is not None:
+    mn_cases = casesen(middle_name)
+    wordlist.extend(mn_cases)
+    simplepasswords(mn_cases)
+    for i in mn_cases:
+        wordlist.append(i[::-1])
+        for j in combinations_list:
+            if any(k in special_characters for k in j):
+                wordlist.append(i[::-1] + j)
+                wordlist.append(j + i[::-1])
 if last_name is not None:
     ln_cases = casesen(last_name)
     wordlist.extend(ln_cases)
     simplepasswords(ln_cases)
     for i in ln_cases:
         wordlist.append(i[::-1])
+        for j in combinations_list:
+            if any(k in special_characters for k in j):
+                wordlist.append(i[::-1] + j)
+                wordlist.append(j + i[::-1])
 if extra is not None:
     e_cases = []
     extra = extra.split(',')
@@ -162,6 +205,10 @@ if birthday is not None:
         for i in fn_cases:
             for j in datecombinations(day, mon, year, word=(i,)):
                 wordlist.append(j)
+    if middle_name is not None:
+        for i in mn_cases:
+            for j in datecombinations(day, mon, year, word=(i,)):
+                wordlist.append(j)
     if last_name is not None:
         for i in ln_cases:
             for j in datecombinations(day, mon, year, word=(i,)):
@@ -172,8 +219,42 @@ if birthday is not None:
             for j in ln_cases:
                 for k in datecombinations(day, mon, year, word=(i+j,)):
                     wordlist.append(k)
+                for k in datecombinations(day, mon, year, word=(j+i,)):
+                    wordlist.append(k)
+    if first_name is not None and middle_name is not None:
+        for i in fn_cases:
+            for j in mn_cases:
+                for k in datecombinations(day, mon, year, word=(i+j,)):
+                    wordlist.append(k)
+                for k in datecombinations(day, mon, year, word=(j+i,)):
+                    wordlist.append(k)
+    if last_name is not None and middle_name is not None:
+        for i in ln_cases:
+            for j in mn_cases:
+                for k in datecombinations(day, mon, year, word=(i+j,)):
+                    wordlist.append(k)
+                for k in datecombinations(day, mon, year, word=(j+i,)):
+                    wordlist.append(k)
 
+    if first_name is not None and middle_name is not None and last_name is not None:
+        for i in fn_cases:
+            for j in mn_cases:
+                for k in ln_cases:
+                    for l in datecombinations(day, mon, year, word=(i+j+k,)):
+                        wordlist.append(l)
+                    for l in datecombinations(day, mon, year, word=(i+k+j,)):
+                        wordlist.append(l)
+                    for l in datecombinations(day, mon, year, word=(j+i+k,)):
+                        wordlist.append(l)
+                    for l in datecombinations(day, mon, year, word=(j+k+i,)):
+                        wordlist.append(l)
+                    for l in datecombinations(day, mon, year, word=(k+i+j,)):
+                        wordlist.append(l)
+                    for l in datecombinations(day, mon, year, word=(k+j+i,)):
+                        wordlist.append(l)
 
 
 for i in wordlist:
     print(i)
+print(len(wordlist))
+
